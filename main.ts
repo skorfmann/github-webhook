@@ -125,7 +125,15 @@ class MyStack extends TerraformStack {
 
     new EventBridgeWorkflow(this, 'event-bridge-worfklow', {
       eventBridge,
-      workflow
+      target: workflow,
+      eventPattern: {
+        source: [
+          'com.cdktf.supportmeister'
+        ],
+        'detail-type': [
+          'IncomingGithubWebhook'
+        ]
+      }
     })
 
     new TerraformOutput(this, 'url', {

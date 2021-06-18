@@ -6,28 +6,22 @@ import * as iam from 'iam-floyd';
 
 export interface WorkflowProps {
   readonly eventBridge: aws.CloudwatchEventBus;
-  readonly workflow: aws.SfnStateMachine
+  readonly target: aws.SfnStateMachine;
+  readonly eventPattern: Record<string, any>;
 }
 
 export class EventBridgeWorkflow extends Resource {
   constructor(scope: Construct, id: string, props: WorkflowProps) {
     super(scope, id);
 
-    const { workflow, eventBridge } = props;
+    const { target, eventBridge, eventPattern } = props;
 
     // There's a AWS Provider bug preventing this resource
     // being recreated properly when the eventBusName changes
     const rule = new aws.CloudwatchEventRule(this, 'rule', {
       name: 'capture-github-events',
       eventBusName: eventBridge.name,
-      eventPattern: JSON.stringify({
-        source: [
-          'com.cdktf.supportmeister'
-        ],
-        'detail-type': [
-          'IncomingGithubWebhook'
-        ]
-      })
+      eventPattern: JSON.stringify(eventPattern)
     })
 
     const role = new aws.IamRole(this, 'integration-role', {
@@ -40,7 +34,7 @@ export class EventBridgeWorkflow extends Resource {
       inlinePolicy: [
         {
           name: 'allow-invoke-stepfucntion',
-          policy: Policy.document(new iam.States().allow().toStartExecution().on(workflow.arn))
+          policy: Policy.document(new iam.States().allow().toStartExecution().on(target.arn))
         }
       ]
     })
@@ -49,7 +43,7 @@ export class EventBridgeWorkflow extends Resource {
       targetId: 'foo',
       eventBusName: eventBridge.name,
       rule: rule.name,
-      arn: workflow.arn,
+      arn: target.arn,
       roleArn: role.arn
     })
   }

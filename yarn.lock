@@ -7,10 +7,20 @@
   resolved "https://registry.yarnpkg.com/@cdktf/provider-aws/-/provider-aws-1.0.98.tgz#bd7c1368ffca17e14dea139cf95490d05f88bbe3"
   integrity sha512-dpGT9vyK2lsXW2kc44T1tfy7Fa6sU03NE6vvqyEasNWcHWl0rM3LdQb2eZh0+MxqkLoHiRzEha3nK9RakwKPzQ==
 
+"@types/aws-lambda@^8.10.77":
+  version "8.10.77"
+  resolved "https://registry.yarnpkg.com/@types/aws-lambda/-/aws-lambda-8.10.77.tgz#04c4e3a06ab5552f2fa80816f8adca54b6bb9671"
+  integrity sha512-n0EMFJU/7u3KvHrR83l/zrKOVURXl5pUJPNED/Bzjah89QKCHwCiKCBoVUXRwTGRfCYGIDdinJaAlKDHZdp/Ng==
+
 "@types/node@^15.12.2":
   version "15.12.2"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-15.12.2.tgz#1f2b42c4be7156ff4a6f914b2fb03d05fa84e38d"
   integrity sha512-zjQ69G564OCIWIOHSXyQEEDpdpGl+G348RAKY0XXy9Z5kU9Vzv1GMNnkar/ZJ8dzXB3COzD9Mo9NtRZ4xfgUww==
+
+"@udondan/common-substrings@^3.0.2":
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/@udondan/common-substrings/-/common-substrings-3.0.2.tgz#22e90b6d4eaa640e491badee9ae678a3372c572b"
+  integrity sha512-Sc8lNnubj2NtH6zj13K8ADohTnwvXBSp6NWV0LDvia/xfIGHvOhKOHjL7AM9+5lVL3LcIHl85mwpn9LYYhyxuw==
 
 archiver-utils@^2.1.0:
   version "2.1.0"
@@ -141,6 +151,11 @@ end-of-stream@^1.4.1:
   dependencies:
     once "^1.4.0"
 
+esbuild@^0.12.9:
+  version "0.12.9"
+  resolved "https://registry.yarnpkg.com/esbuild/-/esbuild-0.12.9.tgz#bed4e7087c286cd81d975631f77d47feb1660070"
+  integrity sha512-MWRhAbMOJ9RJygCrt778rz/qNYgA4ZVj6aXnNPxFjs7PmIpb0fuB9Gmg5uWrr6n++XKwwm/RmSz6RR5JL2Ocsw==
+
 exit-on-epipe@~1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/exit-on-epipe/-/exit-on-epipe-1.0.1.tgz#0bdd92e87d5285d267daa8171d0eb06159689692"
@@ -172,6 +187,14 @@ graceful-fs@^4.2.0:
   version "4.2.6"
   resolved "https://registry.yarnpkg.com/graceful-fs/-/graceful-fs-4.2.6.tgz#ff040b2b0853b23c3d31027523706f1885d76bee"
   integrity sha512-nTnJ528pbqxYanhpDYsi4Rd8MAeaBA67+RZ10CM1m3bTAVFEDcd5AuA4a6W5YkGZ1iNXHzZz8T6TBKLeBuNriQ==
+
+iam-floyd@^0.197.0:
+  version "0.197.0"
+  resolved "https://registry.yarnpkg.com/iam-floyd/-/iam-floyd-0.197.0.tgz#1e6044cc1d2c600e679e6999ddf8a43a9803da82"
+  integrity sha512-nWMZeZTZ1DZw3pMuUZtE2u629Z2eqLkwzGauZoGxHoVbzcmDh6lkQvNrwglvRsVnMx1OcPTMA0kcCyKBhyLMkw==
+  dependencies:
+    "@udondan/common-substrings" "^3.0.2"
+    regex-parser "^2.2.11"
 
 ieee754@^1.1.13:
   version "1.2.1"
@@ -290,6 +313,11 @@ readdir-glob@^1.0.0:
   integrity sha512-91/k1EzZwDx6HbERR+zucygRFfiPl2zkIYZtv3Jjr6Mn7SkKcVct8aVO+sSRiGMc6fLf72du3d92/uY63YPdEA==
   dependencies:
     minimatch "^3.0.4"
+
+regex-parser@^2.2.11:
+  version "2.2.11"
+  resolved "https://registry.yarnpkg.com/regex-parser/-/regex-parser-2.2.11.tgz#3b37ec9049e19479806e878cabe7c1ca83ccfe58"
+  integrity sha512-jbD/FT0+9MBU2XAZluI7w2OBs1RBi6p9M83nkoZayQXXU9e8Robt69FcZc7wU4eJD/YFTjn1JdCk3rbMJajz8Q==
 
 safe-buffer@~5.1.0, safe-buffer@~5.1.1:
   version "5.1.2"

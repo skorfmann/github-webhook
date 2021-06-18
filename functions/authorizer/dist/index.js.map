@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../index.ts"],
+  "sourcesContent": ["export const handler = async (event: any) => {\n  const isAuthorized = event.pathParameters.token === '12345';\n\n  return {\n    isAuthorized,\n    context: {}\n  }\n}"],
+  "mappings": ";;;;;;;;;AAAA;AAAA;AAAA;AAAO,IAAM,UAAU,OAAO,UAAe;AAC3C,QAAM,eAAe,MAAM,eAAe,UAAU;AAEpD,SAAO;AAAA,IACL;AAAA,IACA,SAAS;AAAA;AAAA;",
+  "names": []
+}

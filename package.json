@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "@cdktf/provider-aws": "^1.0.98",
+    "asl-types": "^1.2.1",
     "cdktf": "^0.4.1-pre.269",
     "constructs": "^3.3.84",
     "esbuild": "^0.12.9",

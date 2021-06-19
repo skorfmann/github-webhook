@@ -1,12 +1,12 @@
 import { Resource } from 'cdktf';
-import { Construct } from 'constructs';
+import { Construct, Node } from 'constructs';
 import { Policy } from './policy';
 import * as aws from '@cdktf/provider-aws';
 import * as iam from 'iam-floyd';
 
 export interface TargetProps {
   readonly eventBridge: aws.CloudwatchEventBus;
-  readonly target: aws.SfnStateMachine;
+  readonly target: aws.SfnStateMachine | aws.LambdaFunction;
   readonly eventPattern: Record<string, any>;
 }
 
@@ -19,14 +19,15 @@ export class EventBridgeTarget extends Resource {
     // There's a AWS Provider bug preventing this resource
     // being recreated properly when the eventBusName changes
     const rule = new aws.CloudwatchEventRule(this, 'rule', {
-      name: 'capture-github-events',
+      name: `${id}-${Node.of(target).id}`,
       eventBusName: eventBridge.name,
       eventPattern: JSON.stringify(eventPattern)
     })
 
-    const policies: aws.IamRoleInlinePolicy[] = [];
 
     if (target instanceof aws.SfnStateMachine) {
+      const policies: aws.IamRoleInlinePolicy[] = [];
+
       policies.push({
         name: 'allow-invoke-stepfucntion',
         policy: Policy.document(
@@ -36,24 +37,39 @@ export class EventBridgeTarget extends Resource {
             .on(target.arn)
         )
       })
+      const role = new aws.IamRole(this, 'integration-role', {
+        name: `${id}-integration-role`,
+        assumeRolePolicy: Policy.document(new iam.Sts()
+          .allow()
+          .toAssumeRole()
+          .forService('events.amazonaws.com')
+        ),
+        inlinePolicy: policies
+      })
+
+      new aws.CloudwatchEventTarget(this, 'target', {
+        targetId: `${id}-${Node.of(target).id}`,
+        eventBusName: eventBridge.name,
+        rule: rule.name,
+        arn: target.arn,
+        roleArn: role.arn
+      })
     }
 
-    const role = new aws.IamRole(this, 'integration-role', {
-      name: `${id}-integration-role`,
-      assumeRolePolicy: Policy.document(new iam.Sts()
-        .allow()
-        .toAssumeRole()
-        .forService('events.amazonaws.com')
-      ),
-      inlinePolicy: policies
-    })
+    if (target instanceof aws.LambdaFunction) {
+      new aws.CloudwatchEventTarget(this, 'target', {
+        targetId: `${id}-${Node.of(target).id}`,
+        eventBusName: eventBridge.name,
+        rule: rule.name,
+        arn: target.arn,
+      })
 
-    new aws.CloudwatchEventTarget(this, 'target', {
-      targetId: 'foo',
-      eventBusName: eventBridge.name,
-      rule: rule.name,
-      arn: target.arn,
-      roleArn: role.arn
-    })
+      new aws.LambdaPermission(this, 'lambda-permission', {
+        functionName: target.arn,
+        action: "lambda:InvokeFunction",
+        principal: "events.amazonaws.com",
+        sourceArn: rule.arn
+      })
+    }
   }
 }

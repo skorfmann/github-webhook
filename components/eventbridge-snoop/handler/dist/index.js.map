@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../index.ts"],
+  "sourcesContent": ["export const handler = async (event: any) => {\n  console.log(JSON.stringify(event, null, 2))\n  return\n}"],
+  "mappings": ";;;;;;;;;AAAA;AAAA;AAAA;AAAO,IAAM,UAAU,OAAO,UAAe;AAC3C,UAAQ,IAAI,KAAK,UAAU,OAAO,MAAM;AACxC;AAAA;",
+  "names": []
+}

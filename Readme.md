@@ -31,3 +31,17 @@ Submit a test event
 curl -d '{"key1":"value1", "key2":"value2"}' -H "Content-Type: application/json" -X POST -is https://66pw9lps6l.execute-api.eu-central-1.amazonaws.com/production/hooks/github/12345
 ```
 
+## Debug EventBridge
+
+
+```ts
+const stack = new MyStack(app, 'stream');
+
+Node.of(stack).applyAspect(new SnoopEvents())
+```
+
+```
+export AWS_PROFILE=<your-aws-profile>
+export AWS_DEFAULT_REGION=<region>
+aws logs tail --follow  "/aws/lambda/snoop-events"
+```

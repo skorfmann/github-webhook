@@ -1,10 +1,11 @@
-import { Construct } from 'constructs';
+import { Construct, Node } from 'constructs';
 import { App, TerraformStack, RemoteBackend, TerraformOutput } from 'cdktf';
 import * as aws from '@cdktf/provider-aws';
 import { NodejsFunction, ApiRoute, Policy, EventBridgeTarget } from './lib'
 import * as path from 'path';
 import * as iam from 'iam-floyd';
 import * as asl from 'asl-types';
+import { SnoopEvents } from './components/eventbridge-snoop/main';
 
 class MyStack extends TerraformStack {
   constructor(scope: Construct, name: string) {
@@ -45,8 +46,8 @@ class MyStack extends TerraformStack {
       credentialsArn: integrationRole.arn,
       requestParameters: {
         Detail: '$request.body',
-        DetailType: 'IncomingGithubWebhook',
-        Source: 'com.cdktf.supportmeister',
+        DetailType: 'Github Hook $request.header.X-GitHub-Event $request.body.action',
+        Source: 'com.supportmeister.hooks.github',
         EventBusName: eventBridge.name
       }
     })
@@ -128,10 +129,7 @@ class MyStack extends TerraformStack {
       target: workflow,
       eventPattern: {
         source: [
-          'com.cdktf.supportmeister'
-        ],
-        'detail-type': [
-          'IncomingGithubWebhook'
+          { 'prefix': 'com.supportmeister.hooks' }
         ]
       }
     })
@@ -151,6 +149,7 @@ class MyStack extends TerraformStack {
 }
 
 const app = new App();
-new MyStack(app, 'stream');
+const stack = new MyStack(app, 'stream');
 
+Node.of(stack).applyAspect(new SnoopEvents())
 app.synth();

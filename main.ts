@@ -1,7 +1,7 @@
 import { Construct } from 'constructs';
 import { App, TerraformStack, RemoteBackend, TerraformOutput } from 'cdktf';
 import * as aws from '@cdktf/provider-aws';
-import { NodejsFunction, ApiRoute, Policy, EventBridgeWorkflow } from './lib'
+import { NodejsFunction, ApiRoute, Policy, EventBridgeTarget } from './lib'
 import * as path from 'path';
 import * as iam from 'iam-floyd';
 import * as asl from 'asl-types';
@@ -123,7 +123,7 @@ class MyStack extends TerraformStack {
       definition: JSON.stringify(sfnDefinition)
     })
 
-    new EventBridgeWorkflow(this, 'event-bridge-worfklow', {
+    new EventBridgeTarget(this, 'event-bridge-worfklow', {
       eventBridge,
       target: workflow,
       eventPattern: {

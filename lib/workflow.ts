@@ -4,14 +4,14 @@ import { Policy } from './policy';
 import * as aws from '@cdktf/provider-aws';
 import * as iam from 'iam-floyd';
 
-export interface WorkflowProps {
+export interface TargetProps {
   readonly eventBridge: aws.CloudwatchEventBus;
   readonly target: aws.SfnStateMachine;
   readonly eventPattern: Record<string, any>;
 }
 
-export class EventBridgeWorkflow extends Resource {
-  constructor(scope: Construct, id: string, props: WorkflowProps) {
+export class EventBridgeTarget extends Resource {
+  constructor(scope: Construct, id: string, props: TargetProps) {
     super(scope, id);
 
     const { target, eventBridge, eventPattern } = props;
@@ -24,6 +24,20 @@ export class EventBridgeWorkflow extends Resource {
       eventPattern: JSON.stringify(eventPattern)
     })
 
+    const policies: aws.IamRoleInlinePolicy[] = [];
+
+    if (target instanceof aws.SfnStateMachine) {
+      policies.push({
+        name: 'allow-invoke-stepfucntion',
+        policy: Policy.document(
+          new iam.States()
+            .allow()
+            .toStartExecution()
+            .on(target.arn)
+        )
+      })
+    }
+
     const role = new aws.IamRole(this, 'integration-role', {
       name: `${id}-integration-role`,
       assumeRolePolicy: Policy.document(new iam.Sts()
@@ -31,12 +45,7 @@ export class EventBridgeWorkflow extends Resource {
         .toAssumeRole()
         .forService('events.amazonaws.com')
       ),
-      inlinePolicy: [
-        {
-          name: 'allow-invoke-stepfucntion',
-          policy: Policy.document(new iam.States().allow().toStartExecution().on(target.arn))
-        }
-      ]
+      inlinePolicy: policies
     })
 
     new aws.CloudwatchEventTarget(this, 'target', {

@@ -1,11 +1,11 @@
 import { Construct, Node } from 'constructs';
 import { App, TerraformStack, RemoteBackend, TerraformOutput } from 'cdktf';
 import * as aws from '@cdktf/provider-aws';
-import { NodejsFunction, ApiRoute, Policy, EventBridgeTarget } from './lib'
+import { NodejsFunction, ApiRoute, Policy } from './lib'
 import * as path from 'path';
 import * as iam from 'iam-floyd';
-import * as asl from 'asl-types';
 import { SnoopEvents } from './components/eventbridge-snoop/main';
+import { Dispatcher } from './components/dispatcher/index';
 
 class MyStack extends TerraformStack {
   constructor(scope: Construct, name: string) {
@@ -67,66 +67,8 @@ class MyStack extends TerraformStack {
       autoDeploy: true
     })
 
-    const table = new aws.DynamodbTable(this, 'table', {
-      name: 'on-duty-users',
-      streamEnabled: true,
-      streamViewType: 'NEW_AND_OLD_IMAGES',
-      hashKey: 'id',
-      attribute: [
-        { name: 'id', type: 'S' },
-      ],
-      billingMode: 'PAY_PER_REQUEST'
-    })
-
-    const sfnRole = new aws.IamRole(this, 'sfn-workflow-role', {
-      name: `sfn-workflow-role`,
-      assumeRolePolicy: Policy.document(new iam.Sts()
-        .allow()
-        .toAssumeRole()
-        .forService('states.amazonaws.com')
-      ),
-      inlinePolicy: [
-        {
-          name: 'allow-sfn-to-ddb',
-          policy: Policy.document(new iam.Dynamodb().allow().toGetItem().on(table.arn))
-        }
-      ]
-    })
-
-    const getDynamoDb: asl.Task = {
-      "Type": "Task",
-      "Resource": "arn:aws:states:::dynamodb:getItem",
-      "Parameters": {
-        "TableName": table.name,
-        "Key": {
-          "id": {"S": "USER#ONDUTY"}
-        }
-      },
-      "ResultPath": "$.DynamoDB",
-      "Next": "finishState"
-    }
-
-    const finishState: asl.Succeed = {
-      Type: 'Succeed'
-    }
-
-    const sfnDefinition: asl.StateMachine = {
-      StartAt: 'getDynamoDb',
-      States: {
-        getDynamoDb,
-        finishState
-      }
-    }
-
-    const workflow = new aws.SfnStateMachine(this, 'state-machine', {
-      name: 'supportmeister',
-      roleArn: sfnRole.arn,
-      definition: JSON.stringify(sfnDefinition)
-    })
-
-    new EventBridgeTarget(this, 'event-bridge-worfklow', {
+    new Dispatcher(this, 'dispatcher', {
       eventBridge,
-      target: workflow,
       eventPattern: {
         source: [
           { 'prefix': 'com.supportmeister.hooks' }

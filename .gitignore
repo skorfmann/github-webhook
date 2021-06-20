@@ -7,3 +7,4 @@ cdktf.log
 .gen
 .terraform
 tmp
+!**/jest.config.js

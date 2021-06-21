@@ -9,6 +9,8 @@ import {
   GetExecutionHistoryCommand,
   GetExecutionHistoryCommandInput
 } from "@aws-sdk/client-sfn";
+import * as esbuild from 'esbuild';
+import path = require("path/posix");
 
 let output: Record<string, TerraformOutput>;
 
@@ -57,11 +59,31 @@ const getSfnHistory = async (executionArn: string) => {
   return await client.send(historyCommand);
 };
 
+const build = async (entryPoint: string) => {
+  const result = await esbuild.build({
+    entryPoints: [entryPoint],
+    platform: 'node',
+    target: 'es2018',
+    bundle: true,
+    metafile: true,
+    entryNames: '[dir]/[name]-[hash]',
+    format: 'cjs',
+    outfile: 'tmp/cache.js',
+    write: false,
+    absWorkingDir: path.join(__dirname, '..', '..', '..'),
+  });
+  const keys = Object.keys(result.metafile?.outputs || {});
+
+  return keys[0]
+}
+
 describe("full integration test", () => {
   beforeAll(async () => {
-    await deploy();
+    const newBuildCache = await build(path.join(__dirname, 'stack.ts'))
+    const cachePath = path.join(process.cwd(), newBuildCache)
 
-    sleep(1000); // give AWS some time to process the deployment
+    console.log(cachePath)
+    await deploy(cachePath);
 
     output = await terraformOutput();
   }, 180_000);

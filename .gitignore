@@ -8,3 +8,4 @@ cdktf.log
 .terraform
 tmp
 !**/jest.config.js
+**/cdktf.test.out/**
